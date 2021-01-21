@@ -311,12 +311,12 @@ class AllicheModel(InteractiveModel):
         return eps_1_max, eps_1_min, inc, eps_1_arr, w_arr, n, D_arr
 
     def subplots(self, fig):
-        axes = fig.subplots(1, 3)
+        axes = fig.subplots(1, 6)
         return axes
 
     def update_plot(self, axes):
-        # ax1, ax2, ax3, ax4, ax5, ax6 = axes
-        ax1, ax2, ax3 = axes
+        ax1, ax2, ax3, ax4, ax5, ax6 = axes
+#         ax1, ax2, ax3, ax4 = axes
 
         inc = self.get_output()[2]
         t_arr = self.get_load()[1]
@@ -358,83 +358,83 @@ class AllicheModel(InteractiveModel):
         # # -----------------------------------------------------------------------
         # # plot 4
         # # -----------------------------------------------------------------------
-        #
-        # eps_1_max = np.zeros(n)
-        # eps_1_min = np.zeros(n)
-        # cycle = np.zeros(n)
-        # for i in range(0, n, 1):
-        #     idx_1 = self.m + 2 * i * self.m - 1
-        #     idx_2 = 2 * i * self.m
-        #     if idx_1 <= len(eps_1_arr[0:inc]):
-        #         idx_1 = idx_1
-        #     else:
-        #         idx_1 = self.m + 2 * (i - 1.0) * self.m - 1
-        #         break
-        #
-        #     if idx_2 <= len(eps_1_arr[0:inc]):
-        #         idx_2 = idx_2
-        #     else:
-        #         idx_2 = 1 * (i - 1.0) * self.m
-        #         break
-        #
-        #     eps_1_max[i] = eps_1_arr[int(idx_1)]
-        #     eps_1_min[i] = eps_1_arr[int(idx_2)]
-        #     cycle[i] = i + 1
-        #     f = open("eps_1_max.txt", "w+")
-        #     #         D_eps_1_max = (str(eps_1_max[0:i])) - str((eps_1_max[0:i]))
-        #     f.write(str(abs(eps_1_max[0:i])))
-        # ax4.plot(cycle[0:i], abs(eps_1_max[0:i]), 'k', color='pink', linewidth=1, alpha=1)
-        #
-        # # plt.plot(cycle, eps_2 / 1.5, color='gray', linewidth=1.0, alpha=0.5)
-        # # plt.fill_between(cycle, eps_2, eps_2 / 1.5, facecolor='gray', alpha=0.5)
-        # ax4.set_xlabel('number of cycles')
-        # ax4.se_ylabel('max $\epsilon_{11}$')
-        # # plt.ylim(0, 1)
-        # # plt.legend()
+        
+        eps_1_max = np.zeros(n)
+        eps_1_min = np.zeros(n)
+        cycle = np.zeros(n)
+        for i in range(0, n, 1):
+            idx_1 = self.m + 2 * i * self.m - 1
+            idx_2 = 2 * i * self.m
+            if idx_1 <= len(eps_1_arr[0:inc]):
+                idx_1 = idx_1
+            else:
+                idx_1 = self.m + 2 * (i - 1.0) * self.m - 1
+                break
+        
+            if idx_2 <= len(eps_1_arr[0:inc]):
+                idx_2 = idx_2
+            else:
+                idx_2 = 1 * (i - 1.0) * self.m
+                break
+        
+            eps_1_max[i] = eps_1_arr[int(idx_1)]
+            eps_1_min[i] = eps_1_arr[int(idx_2)]
+            cycle[i] = i + 1
+            f = open("eps_1_max.txt", "w+")
+            #         D_eps_1_max = (str(eps_1_max[0:i])) - str((eps_1_max[0:i]))
+            f.write(str(abs(eps_1_max[0:i])))
+        ax4.plot(cycle[0:i], abs(eps_1_max[0:i]), 'k', color='pink', linewidth=1, alpha=1)
+        
+        # plt.plot(cycle, eps_2 / 1.5, color='gray', linewidth=1.0, alpha=0.5)
+        # plt.fill_between(cycle, eps_2, eps_2 / 1.5, facecolor='gray', alpha=0.5)
+#         ax4.set_xlabel('number of cycles')
+#         ax4.se_ylabel('max $\epsilon_{11}$')
+        # plt.ylim(0, 1)
+        # plt.legend()
         #
         # # -----------------------------------------------------------------------
         # # plot 5
         # # -----------------------------------------------------------------------
         #
-        # w = np.zeros(n)
-        # cycle = np.zeros(n)
-        # for i in range(0, n, 1):
-        #     idx = self.m + 2 * i * self.m - 1
-        #     if idx <= len(w_arr[0:inc]):
-        #         idx = idx
-        #     else:
-        #         idx = self.m + 2 * (i - 1.0) * self.m - 1
-        #         break
-        #
-        #     w[i] = w_arr[idx]
-        #     cycle[i] = i + 1
-        #
-        # ax5.plot(cycle[0:i], w[0:i], 'k', color='green', linewidth=1, alpha=1)
-        # ax5.set_xlabel('number of cycles')
-        # ax5.set_ylabel('Damage')
-        # # plt.ylim(0, 1)
-        # # plt.legend()
+        w = np.zeros(n)
+        cycle = np.zeros(n)
+        for i in range(0, n, 1):
+            idx = self.m + 2 * i * self.m - 1
+            if idx <= len(w_arr[0:inc]):
+                idx = idx
+            else:
+                idx = self.m + 2 * (i - 1.0) * self.m - 1
+                break
+        
+            w[i] = w_arr[idx]
+            cycle[i] = i + 1
+        
+        ax5.plot(cycle[0:i], w[0:i], 'k', color='green', linewidth=1, alpha=1)
+#         ax5.set_xlabel('number of cycles')
+#         ax5.set_ylabel('Damage')
+        # plt.ylim(0, 1)
+        # plt.legend()
         #
         # # -----------------------------------------------------------------------
         # # plot 6
         # # -----------------------------------------------------------------------
         #
-        # D = np.zeros(n)
-        # cycle = np.zeros(n)
-        # for i in range(0, n, 1):
-        #     idx = self.m + 2 * i * self.m - 1
-        #     if idx <= len(D_arr[0:inc]):
-        #         idx = idx
-        #     else:
-        #         idx = self.m + 2 * (i - 1.0) * self.m - 1
-        #         break
-        #
-        #     D[i] = D_arr[idx]
-        #     cycle[i] = i + 1
-        #
-        # ax6.plot(cycle[0:i], D[0:i], 'k', color='black', linewidth=1, alpha=1)
-        # ax6.set_xlabel('number of cycles')
-        # ax6.set_ylabel('$Dissipation$')
+        D = np.zeros(n)
+        cycle = np.zeros(n)
+        for i in range(0, n, 1):
+            idx = self.m + 2 * i * self.m - 1
+            if idx <= len(D_arr[0:inc]):
+                idx = idx
+            else:
+                idx = self.m + 2 * (i - 1.0) * self.m - 1
+                break
+        
+            D[i] = D_arr[idx]
+            cycle[i] = i + 1
+        
+        ax6.plot(cycle[0:i], D[0:i], 'k', color='black', linewidth=1, alpha=1)
+#         ax6.set_xlabel('number of cycles')
+#         ax6.set_ylabel('$Dissipation$')
 
         # fig = plt.gcf()
         #     fig.set_size_inches(8, 8)
