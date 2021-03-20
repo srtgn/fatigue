@@ -13,7 +13,6 @@ class EnhancedRule(InteractiveModel):
     n_x = Int(100)
     L = Int(100)
     F = Int(100)
-    F = Int(100)
 
     A = Float(-10.66)
     B = Float(6.1)
@@ -24,10 +23,13 @@ class EnhancedRule(InteractiveModel):
     eta_downarrow = Float(0.590)
     beta_downarrow = Float(60.5)
 
-    s_max_i = Float(0.90)
-    s_min_i = Float(0.20)
-    s_max_ip1 = Float(0.85)
-    s_min_ip1 = Float(0.80)
+    s = {"s_max_i" : 0.90, "s_min_i" : 0.20, "s_max_ip1" : 0.85, "s_min_ip1" : 0.20}
+    s_max_i = list(s.values())[0]
+    s_min_i = list(s.values())[1]
+    s_max_ip1 = list(s.values())[2]
+    s_min_ip1 = list(s.values())[3]
+
+    n_list = [500, 5000, 50000]
 
     ipw_view = View(
         Item('A', latex='A'),
@@ -37,24 +39,27 @@ class EnhancedRule(InteractiveModel):
         Item('beta_uparrow', latex='\beta_{up}'),
         Item('eta_downarrow', latex='\eta_{down}'),
         Item('beta_downarrow', latex='\beta_{down}'),
-        Item('s_max_i', latex='s_{max}_i'),
-        Item('s_min_i', latex='s_{min}_i'),
-        Item('s_max_ip1', latex='s_{max}_ip1'),
-        Item('s_min_ip1', latex='s_{min}_ip1')
+        Item('s_max_i', latex='\s_{max}_i'),
+        Item('s_min_i', latex='\s_{min}_i'),
+        Item('s_max_ip1', latex='\s_{max}_ip1'),
+        Item('s_min_ip1', latex='\s_{min}_ip1')
     )
 
-    def get_eta(self):
-        eta = sum(self.eta_i) + (self.delta_eta_i)
-        return eta
+
+    ''' The variable of first part of the eq27'''
 
     def get_eta_i(self):
-        eta_i = self.n_i / self.n_i_f
+        eta_i = []
+        for i, n in enumerate(self.n_list):
+            n_i = n
+            n_i_f = sum(self.n_list)
+            eta_i.append(n_i / n_i_f)
         return eta_i
 
-    def get_s_bar_i(self):
-        s_bar_i = (self.s_m_i + self.s_m_ip1) / 2
-        return s_bar_i
-
+    
+    ''' The variables of the second part of the eq27'''
+    
+    #s_bar_i
     def get_s_m_i(self):
         s_m_i = (self.s_max_i + self.s_min_i) / 2
         return s_m_i
@@ -62,7 +67,13 @@ class EnhancedRule(InteractiveModel):
     def get_s_m_ip1(self):
         s_m_ip1 = (self.s_max_ip1 + self.s_min_ip1) / 2
         return s_m_ip1
+    
+    def get_s_bar_i(self):
+        s_bar_i = (self.get_s_m_i() + self.get_s_m_ip1()) / 2
+        return s_bar_i
 
+
+    #delta_s_max_i & delta_s_min_i
     def get_delta_s_max_i(self):
         delta_s_max_i = (self.s_max_ip1 - self.s_min_i)
         return delta_s_max_i
@@ -70,33 +81,43 @@ class EnhancedRule(InteractiveModel):
     def get_delta_s_min_i(self):
         delta_s_min_i = (self.s_min_ip1 - self.s_min_i)
         return delta_s_min_i
-
-    def get_delta_eta_i(self):
-        if (self.tilde_eta_i > 0) & (self.tilde_eta_i <= self.eta_x):
-            delta_eta_i = (self.delta_eta_max * (1 - ((self.eta_x - self.tilde_eta_i) / self.eta_x)))
-        elif (self.tilde_eta_i > self.eta_x) & (self.ilde_eta_i < 1):
-            delta_eta_i = (self.delta_eta_max * ((self.tilde_eta_i - 1) / (self.eta_x - 1)))
-        return delta_eta_i
+    
+    def get_tilde_eta_i(self):
+        tilde_eta_i = self.get_eta_i()[0]
+        return tilde_eta_i
 
     def get_delta_eta_max_i(self):
-        delta_eta_max_i = (self.f_1 * (self.delta_s_max_i + self.f_2)) * np.sign(self.delta_s_max_i)
+        delta_s_max_i = self.get_delta_s_max_i()
+        f_1 = self.A * (delta_s_max_i) ** 2 + self.B * delta_s_max_i * np.sign(delta_s_max_i)
+        f_2 = self.C * (0.475 - self.get_s_bar_i())
+        delta_eta_max_i = (f_1 * (delta_s_max_i + f_2)) * np.sign(delta_s_max_i)
         return delta_eta_max_i
 
-    def get_f_1(self):
-        f_1 = self.A * (self.delta_s_max_i) ** 2 + self.B * self.delta_s_max_i * np.sign(self.delta_s_max_i)
-        return f_1
-
-    def get_f_2(self):
-        f_2 = self.C * (0.475 - self.s_bar_i)
-        return f_2
-
     def get_eta_x(self):
-        if self.delta_eta_max > 0:
-            eta_x = (self.eta_uparrow + self.delta_eta_max / np.tan(self.beta_uparrow))
+        if self.get_delta_eta_max_i() > 0:
+            eta_x = (self.eta_uparrow + self.get_delta_eta_max_i() / np.tan(self.beta_uparrow))
         else:
-            eta_x = (self.eta_downarrow + self.delta_eta_max / np.tan(self.beta_downarrow))
+            eta_x = (self.eta_downarrow + self.get_delta_eta_max_i() / np.tan(self.beta_downarrow))
         return eta_x
 
+    def get_delta_eta_i(self):
+        eta_x = self.get_eta_x()
+        delta_eta_max = self.get_delta_eta_max_i()
+        if (self.get_tilde_eta_i() > 0) & (self.get_tilde_eta_i() <= eta_x):
+            delta_eta_i = (delta_eta_max * (1 - ((eta_x - self.get_tilde_eta_i()) / eta_x)))
+        elif (self.get_tilde_eta_i() > eta_x) & (self.get_tilde_eta_i() < 1):
+            delta_eta_i = (delta_eta_max * ((self.get_tilde_eta_i() - 1) / (eta_x - 1)))
+        return delta_eta_i
+
+
+    ''' eq 27:
+        The expression for the consumed fatigue life under a loading scenario consisting 
+        of n varying loading ranges is proposed in the form '''
+    
+    def get_eta(self):
+        eta = sum(self.get_eta_i()) + (self.get_delta_eta_i())
+        return eta
+    
     def get_array(self):
         sum = self.L + self.n_x + self.F
         array = range(sum)
@@ -106,8 +127,7 @@ class EnhancedRule(InteractiveModel):
         ax = fig.subplots(1, 1)
         return ax
 
-    #
     def update_plot(self, ax):
-        ax.plot(self.get_array(), color='blue', label='$w$ [mm]')
+        ax.bar(10, self.get_eta(), 1, color='blue', label='$w$ [mm]')
         ax.set_ylabel(r'$w [\mathrm{mm}]$')
         ax.legend(loc='lower right')
