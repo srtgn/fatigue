@@ -29,8 +29,9 @@ class EnhancedRule(InteractiveModel):
     s_max_ip1 = list(s.values())[2]
     s_min_ip1 = list(s.values())[3]
 
-    n_list = [500, 5000, 50000]
-
+    n_list = [500, 5000]
+    n_i_f = [10000, 500000]
+    
     ipw_view = View(
         Item('A', latex='A'),
         Item('B', latex='B'),
@@ -52,8 +53,8 @@ class EnhancedRule(InteractiveModel):
         eta_i = []
         for i, n in enumerate(self.n_list):
             n_i = n
-            n_i_f = sum(self.n_list)
-            eta_i.append(n_i / n_i_f)
+#             n_i_f = sum(self.n_list)
+            eta_i.append(n_i / self.n_i_f[i])
         return eta_i
 
     
